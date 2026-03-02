@@ -1,4 +1,4 @@
-package connectroomies.model.repository;
+package connectroomies.model.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,4 +1,4 @@
-package connectroomies.model.mapper;
+package connectroomies.model.mappers;
 
 import connectroomies.model.dtos.HabitacionDto;
 import connectroomies.model.entities.Habitacion;

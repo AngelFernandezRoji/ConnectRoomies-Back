@@ -1,4 +1,4 @@
-package connectroomies.model.mapper;
+package connectroomies.model.mappers;
 
 import connectroomies.model.dtos.ViviendaDto;
 import connectroomies.model.entities.Vivienda;
@@ -14,7 +14,7 @@ public class ViviendaMapper {
         dto.setProvincia(vivienda.getProvincia());
         dto.setPrecio(vivienda.getPrecio());
         dto.setDisponible(vivienda.getDisponible());
-        dto.setFecha_creacion(vivienda.getFecha_creacion());
+        dto.setFechaCreacion(vivienda.getFechaCreacion());
 		return dto;
 		
 	}

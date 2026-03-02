@@ -38,6 +38,7 @@ public class Usuario {
     private String estado;
     @Column(name = "fecha_reg")
     private LocalDateTime fechaRegistro;
+    
     //MÉTODO PARA QUE LA FEHCA_REGISTRO SE COJA DE MANERA AUTOMÁTICA
     @PrePersist
     protected void onCreate() {

@@ -1,4 +1,4 @@
-package connectroomies.model.mapper;
+package connectroomies.model.mappers;
 
 import connectroomies.model.dtos.AlquilerDto;
 import connectroomies.model.entities.Alquiler;

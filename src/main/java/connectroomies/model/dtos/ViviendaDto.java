@@ -14,7 +14,7 @@ public class ViviendaDto {
     private String provincia;
     private Double precio;
     private Integer disponible;
-    private LocalDateTime fecha_creacion;
+    private LocalDateTime fechaCreacion;
     private Long propietarioId;
     private String propietarioNombre;
 }

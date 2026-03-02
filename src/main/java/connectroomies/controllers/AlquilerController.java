@@ -1,4 +1,4 @@
-package connectroomies.controller;
+package connectroomies.controllers;
 
 import java.util.List;
 
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import connectroomies.model.dtos.AlquilerDto;
 import connectroomies.model.entities.Alquiler;
-import connectroomies.model.mapper.AlquilerMapper;
-import connectroomies.service.AlquilerService;
+import connectroomies.model.mappers.AlquilerMapper;
+import connectroomies.services.AlquilerService;
 import lombok.RequiredArgsConstructor;
 
 
@@ -32,12 +32,12 @@ public class AlquilerController {
 
     @PostMapping
     public Alquiler create(@RequestBody Alquiler alquiler) {
-        return alquilerService.save(alquiler);
+        return alquilerService.newAlquiler(alquiler);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        alquilerService.delete(id);
+        alquilerService.deleteAlquiler(id);
     }
 
     

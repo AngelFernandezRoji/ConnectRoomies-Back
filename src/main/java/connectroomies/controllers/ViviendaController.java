@@ -1,4 +1,4 @@
-package connectroomies.controller;
+package connectroomies.controllers;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import connectroomies.model.dtos.ViviendaDto;
 import connectroomies.model.entities.Vivienda;
-import connectroomies.model.mapper.ViviendaMapper;
-import connectroomies.service.ViviendaService;
+import connectroomies.model.mappers.ViviendaMapper;
+import connectroomies.services.ViviendaService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -48,7 +48,7 @@ public class ViviendaController {
     @PostMapping
     public ResponseEntity<?> createVivienda(@RequestBody Vivienda vivienda) {
         try {
-            viviendaService.save(vivienda);
+            viviendaService.newVivienda(vivienda);
             return ResponseEntity.status(201).body("Vivienda añadida correctamente");
         } catch (Exception e) {
             return ResponseEntity.status(400).body("Error al añadir vivienda");
@@ -59,7 +59,7 @@ public class ViviendaController {
     public ResponseEntity<?> updateVivienda(@PathVariable Long id,
                                             @RequestBody Vivienda vivienda) {
         try {
-            viviendaService.update(id, vivienda);
+            viviendaService.updateVivienda(vivienda);
             return ResponseEntity.ok("Vivienda actualizada correctamente");
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body("Error: vivienda no encontrada");
@@ -69,7 +69,7 @@ public class ViviendaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteVivienda(@PathVariable Long id) {
         try {
-            viviendaService.delete(id);
+            viviendaService.deleteVivienda(id);
             return ResponseEntity.ok("Vivienda eliminada correctamente");
         } catch (Exception e) {
             return ResponseEntity.status(404).body("No se ha encontrado la vivienda indicada");

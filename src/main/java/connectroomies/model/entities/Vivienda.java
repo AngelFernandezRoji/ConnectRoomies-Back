@@ -3,6 +3,7 @@ package connectroomies.model.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,25 +28,29 @@ public class Vivienda {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
 	private String titulo;
 	private String tipo;
 	private String direccion;
 	private String localidad;
 	private String provincia;
-	private String codigo_postal;
+	@Column(name = "codigo_postal")
+	private String codigoPostal;
 	private Double precio;
 	private Integer disponible;
-	private LocalDateTime fecha_creacion;
+	@Column(name="fecha_creacion")
+	private LocalDateTime fechaCreacion;
+	
 	//MÉTODO PARA QUE LA FEHCA_CREACION SE COJA DE MANERA AUTOMÁTICA
 	@PrePersist
 	protected void onCreate() {
-	    fecha_creacion = LocalDateTime.now();
+	    fechaCreacion = LocalDateTime.now();
 	}
+	
 	//RELACIÓN CON USUARIO (propietario)
 	@ManyToOne
 	@JoinColumn(name = "propietario_id")
 	private Usuario propietario;
+	
 	//RELACIÓN CON HABITACIÓN
 	@OneToMany(mappedBy = "vivienda")
 	private List<Habitacion> habitaciones;

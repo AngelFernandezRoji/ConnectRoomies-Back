@@ -1,12 +1,12 @@
-package connectroomies.controller;
+package connectroomies.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import connectroomies.model.dtos.HabitacionDto;
 import connectroomies.model.entities.Habitacion;
-import connectroomies.model.mapper.HabitacionMapper;
-import connectroomies.service.HabitacionService;
+import connectroomies.model.mappers.HabitacionMapper;
+import connectroomies.services.HabitacionService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -49,7 +49,7 @@ public class HabitacionController {
     @PostMapping("/vivienda/{viviendaId}")
     public ResponseEntity<?> createHabitacion(@PathVariable Long viviendaId, @RequestBody Habitacion habitacion) {
         try {
-            habitacionService.save(habitacion, viviendaId);
+            habitacionService.newHabitacion(habitacion);
             return ResponseEntity.status(201).body("Habitación añadida correctamente");
         } catch (RuntimeException e) {
             return ResponseEntity.status(400).body(e.getMessage());
@@ -59,7 +59,7 @@ public class HabitacionController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateHabitacion(@PathVariable Long id, @RequestBody Habitacion habitacion) {
         try {
-            habitacionService.update(id, habitacion);
+            habitacionService.updateHabitacion(habitacion);
             return ResponseEntity.ok("Habitación actualizada correctamente");
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body("Habitación no encontrada");
@@ -69,7 +69,7 @@ public class HabitacionController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteHabitacion(@PathVariable Long id) {
         try {
-            habitacionService.delete(id);
+            habitacionService.deleteHabitacion(id);
             return ResponseEntity.ok("Habitación eliminada correctamente");
         } catch (Exception e) {
             return ResponseEntity.status(404).body("No se ha encontrado la habitación");
