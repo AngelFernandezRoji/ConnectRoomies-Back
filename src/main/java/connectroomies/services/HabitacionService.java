@@ -2,18 +2,16 @@ package connectroomies.services;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
 import connectroomies.model.entities.Habitacion;
+import connectroomies.model.entities.Usuario;
 
-@Service
 public interface HabitacionService {
 
 	List<Habitacion> findAll();
 	Habitacion findById(Long id);
-	Habitacion newHabitacion(Habitacion habitacion);
-	Habitacion updateHabitacion(Habitacion habitacion);
-	boolean deleteHabitacion(Long id);
+	Habitacion newHabitacion(Habitacion habitacion, Long viviendaId, Usuario usuario);
+	Habitacion updateHabitacion(Habitacion habitacion, Usuario usuario);
+	void deleteHabitacion(Long id, Usuario usuario);
 	
 
 }

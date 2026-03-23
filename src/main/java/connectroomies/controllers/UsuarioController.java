@@ -41,7 +41,7 @@ public class UsuarioController {
             UsuarioDto dto = UsuarioMapper.toDto(usuarioService.newUsuario(usuario));
             return ResponseEntity.status(201).body("Añadido correctamente: " + dto.getNombre());
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error al añadir usuario");
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 

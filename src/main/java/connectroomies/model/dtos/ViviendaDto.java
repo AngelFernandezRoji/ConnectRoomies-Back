@@ -12,9 +12,10 @@ public class ViviendaDto {
     private String tipo;
     private String localidad;
     private String provincia;
+    private String direccion;
     private Double precio;
     private Integer disponible;
     private LocalDateTime fechaCreacion;
-    private Long propietarioId;
-    private String propietarioNombre;
+    private PropietarioDto propietario;
+    
 }

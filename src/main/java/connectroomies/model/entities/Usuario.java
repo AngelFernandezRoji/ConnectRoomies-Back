@@ -1,13 +1,20 @@
 package connectroomies.model.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -47,9 +54,17 @@ public class Usuario {
 
     //RELACIÓN CON VIVIENDAS
     @OneToMany(mappedBy = "propietario")
-    private List<Vivienda> viviendas;
+    @JsonIgnore
+    @Builder.Default
+    private List<Vivienda> viviendas = new ArrayList<>();
 
-
-    //FALTA ROLES
-    //private List<Rol> roles;
+    //RELACIÓN CON ROLES
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "usuario_roles",
+        joinColumns = @JoinColumn(name = "usuario_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    @Builder.Default
+    private List<Rol> roles = new ArrayList<>();
 }

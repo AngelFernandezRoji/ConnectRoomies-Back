@@ -1,7 +1,6 @@
 package connectroomies.model.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,24 +14,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "imgs_vivienda")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "habitaciones")
-public class Habitacion {
+public class ImagenVivienda {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nombre;
-    private String descripcion;
-    private Double precio;
-    private Integer disponible;
+
+    @Column(name = "url_img", nullable = false)
+    private String urlImg;
 
     @ManyToOne
     @JoinColumn(name = "vivienda_id")
     private Vivienda vivienda;
-
-    
 }

@@ -5,14 +5,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import connectroomies.model.dtos.HabitacionDto;
 import connectroomies.model.entities.Habitacion;
+import connectroomies.model.entities.Usuario;
 import connectroomies.model.mappers.HabitacionMapper;
 import connectroomies.services.HabitacionService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +33,7 @@ public class HabitacionController {
     public List<HabitacionDto> getAllHabitaciones() {
         return habitacionService.findAll().stream()
                 .map(HabitacionMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     @GetMapping("/{id}")
@@ -47,9 +48,12 @@ public class HabitacionController {
     }
 
     @PostMapping("/vivienda/{viviendaId}")
-    public ResponseEntity<?> createHabitacion(@PathVariable Long viviendaId, @RequestBody Habitacion habitacion) {
+    public ResponseEntity<?> createHabitacion(@PathVariable Long viviendaId, 
+    										@RequestBody Habitacion habitacion,
+    										Authentication authentication) {
         try {
-            habitacionService.newHabitacion(habitacion);
+        	Usuario usuario = (Usuario) authentication.getPrincipal();
+            habitacionService.newHabitacion(habitacion, viviendaId, usuario);
             return ResponseEntity.status(201).body("Habitación añadida correctamente");
         } catch (RuntimeException e) {
             return ResponseEntity.status(400).body(e.getMessage());
@@ -57,9 +61,14 @@ public class HabitacionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateHabitacion(@PathVariable Long id, @RequestBody Habitacion habitacion) {
+    public ResponseEntity<?> updateHabitacion(@PathVariable Long id,
+    										@RequestBody Habitacion habitacion,
+    										Authentication authentication) {
         try {
-            habitacionService.updateHabitacion(habitacion);
+        	Usuario usuario = (Usuario) authentication.getPrincipal();
+        	
+        	habitacion.setId(id);
+            habitacionService.updateHabitacion(habitacion, usuario);
             return ResponseEntity.ok("Habitación actualizada correctamente");
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body("Habitación no encontrada");
@@ -67,12 +76,15 @@ public class HabitacionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteHabitacion(@PathVariable Long id) {
+    public ResponseEntity<?> deleteHabitacion(@PathVariable Long id, Authentication authentication) {
         try {
-            habitacionService.deleteHabitacion(id);
+        	Usuario usuario = (Usuario) authentication.getPrincipal();
+            habitacionService.deleteHabitacion(id, usuario);
             return ResponseEntity.ok("Habitación eliminada correctamente");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             return ResponseEntity.status(404).body("No se ha encontrado la habitación");
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Error al eliminar la habitación");
         }
     }
 

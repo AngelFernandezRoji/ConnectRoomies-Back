@@ -1,7 +1,11 @@
 package connectroomies.model.mappers;
 
 import connectroomies.model.dtos.AlquilerDto;
+import connectroomies.model.dtos.HabitacionAlquilerDto;
+import connectroomies.model.dtos.InquilinoDto;
+import connectroomies.model.dtos.ViviendaAlquilerDto;
 import connectroomies.model.entities.Alquiler;
+import connectroomies.model.enums.EstadoAlquiler;
 
 public class AlquilerMapper {
 
@@ -10,19 +14,28 @@ public class AlquilerMapper {
         dto.setId(alquiler.getId());
         dto.setFechaInicio(alquiler.getFechaInicio());
         dto.setFechaFin(alquiler.getFechaFin());
-        dto.setEstado(alquiler.getEstado());
+        dto.setEstado(EstadoAlquiler.ACTIVO);
         
-        dto.setInquilinoId(
-            alquiler.getInquilino() != null ? alquiler.getInquilino().getId() : null
-        );
+        if (alquiler.getInquilino() != null) {
+            InquilinoDto mini = new InquilinoDto();
+            mini.setId(alquiler.getInquilino().getId());
+            mini.setNombre(alquiler.getInquilino().getNombre());
+            dto.setInquilino(mini);
+        }
 
-        dto.setViviendaId(
-            alquiler.getVivienda() != null ? alquiler.getVivienda().getId() : null
-        );
+        if (alquiler.getVivienda() != null) {
+            ViviendaAlquilerDto mini = new ViviendaAlquilerDto();
+            mini.setId(alquiler.getVivienda().getId());
+            mini.setTitulo(alquiler.getVivienda().getTitulo());
+            dto.setVivienda(mini);
+        }
 
-        dto.setHabitacionId(
-            alquiler.getHabitacion() != null ? alquiler.getHabitacion().getId() : null
-        );
+        if (alquiler.getHabitacion() != null) {
+            HabitacionAlquilerDto mini = new HabitacionAlquilerDto();
+            mini.setId(alquiler.getHabitacion().getId());
+            mini.setNombre(alquiler.getHabitacion().getNombre());
+            dto.setHabitacion(mini);
+        }
         
         return dto;
     }

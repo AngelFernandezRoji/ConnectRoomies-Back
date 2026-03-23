@@ -2,7 +2,10 @@ package connectroomies.model.entities;
 
 import java.time.LocalDateTime;
 
+import connectroomies.model.enums.EstadoAlquiler;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,7 +30,8 @@ public class Alquiler {
     private Long id;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
-    private String estado; 
+    @Enumerated(EnumType.STRING)
+    private EstadoAlquiler estado;
     
     @ManyToOne
     @JoinColumn(name = "inquilino_id")
