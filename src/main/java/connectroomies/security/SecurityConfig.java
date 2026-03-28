@@ -35,6 +35,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
             		.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasRole("ADMIN")
+            		.requestMatchers("/api/auth/**").permitAll()
             		.requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
                     .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/viviendas/**").hasAnyRole("USUARIO","PROPIETARIO","ADMIN")
@@ -57,7 +58,8 @@ public class SecurityConfig {
 		    config.setAllowedOrigins(List.of(
 		            "http://localhost:8099",
 		            "http://localhost:8080",
-		            "http://localhost:3000"
+		            "http://localhost:3000",
+		            "http://localhost:4200"
 		    ));
 		    config.setAllowedMethods(List.of(
 		            "GET",
