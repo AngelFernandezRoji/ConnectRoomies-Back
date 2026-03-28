@@ -1,6 +1,7 @@
 package connectroomies.model.dtos;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Data;
 
@@ -17,5 +18,11 @@ public class ViviendaDto {
     private Integer disponible;
     private LocalDateTime fechaCreacion;
     private PropietarioDto propietario;
+    private List<ImagenViviendaDto> imagenesVivienda;
+    private String descripcion;
+    private Double metros;
+    private Integer banos;
+    private Integer habitacionesTotales;
+    private String normas;
     
 }

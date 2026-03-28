@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,11 @@ public class Vivienda {
 	private Integer disponible;
 	@Column(name="fecha_creacion")
 	private LocalDateTime fechaCreacion;
+	private String descripcion;
+	private Double metros;
+	private Integer banos;
+	private Integer habitacionesTotales;
+	private String normas;
 	
 	//MÉTODO PARA QUE LA FEHCA_CREACION SE COJA DE MANERA AUTOMÁTICA
 	@PrePersist
@@ -58,6 +64,10 @@ public class Vivienda {
 	@JsonIgnore
 	private List<Habitacion> habitaciones;
 
-	
+	//RELACIÓN CON IMAGEN
+	@OneToMany(mappedBy = "vivienda")
+	@OrderBy("id ASC")
+	@JsonIgnore
+	private List<ImagenVivienda> imagenesVivienda;
 
 }
