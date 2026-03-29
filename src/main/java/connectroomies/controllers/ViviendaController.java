@@ -19,6 +19,7 @@ import connectroomies.model.dtos.ViviendaDto;
 import connectroomies.model.entities.Usuario;
 import connectroomies.model.entities.Vivienda;
 import connectroomies.model.mappers.ViviendaMapper;
+import connectroomies.security.MyUserDetails;
 import connectroomies.services.ViviendaService;
 import lombok.RequiredArgsConstructor;
 
@@ -55,25 +56,41 @@ public class ViviendaController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createVivienda(@RequestBody Vivienda vivienda, Authentication authentication) {
+    public ResponseEntity<?> createVivienda(@RequestBody ViviendaDto dto, Authentication authentication) {
         try {
-        	Usuario usuario = (Usuario) authentication.getPrincipal();
-            viviendaService.newVivienda(vivienda, usuario);
-            return ResponseEntity.status(201).body("Vivienda añadida correctamente");
+            MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
+            Usuario usuario = userDetails.getUsuario();
+
+
+            boolean isPropietario = usuario.getRoles().stream()
+            .anyMatch(r -> r.getNombre().equals("PROPIETARIO"));
+            if (!isPropietario) {
+                return ResponseEntity.status(403).body("Solo los propietarios pueden añadir viviendas");
+            }
+
+            Vivienda vivienda = viviendaService.newVivienda(dto, usuario);
+                return ResponseEntity.status(201).body(ViviendaMapper.toDto(vivienda));
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error al añadir vivienda");
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateVivienda(@PathVariable Long id,
-                                            @RequestBody Vivienda vivienda,
+                                            @RequestBody ViviendaDto dto,
                                             Authentication authentication) {
         try {
-        	Usuario usuario = (Usuario) authentication.getPrincipal();
-            vivienda.setId(id);
-        	viviendaService.updateVivienda(vivienda, usuario);
-            return ResponseEntity.ok("Vivienda actualizada correctamente");
+        	MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
+            Usuario usuario = userDetails.getUsuario();
+            
+            Vivienda vivienda = viviendaService.findById(id);
+
+            if (!vivienda.getPropietario().getId().equals(usuario.getId())) {
+                return ResponseEntity.status(403).body("No tienes permisos para modificar esta vivienda");
+            }
+
+            Vivienda updatedVivienda = viviendaService.updateVivienda(id, dto, usuario);
+            return ResponseEntity.ok(ViviendaMapper.toDto(updatedVivienda));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body("Error: vivienda no encontrada");
         }

@@ -12,8 +12,8 @@ public interface ViviendaService {
 	//CRUD
 	List<Vivienda> findAll();
 	Vivienda findById(Long id);
-	Vivienda newVivienda(Vivienda vivienda, Usuario creador);
-	Vivienda updateVivienda(Vivienda vienda, Usuario usuario);
+	Vivienda newVivienda(ViviendaDto dto, Usuario creador);
+	Vivienda updateVivienda(Long id, ViviendaDto dto, Usuario usuario);
 	void deleteVivienda(Long id, Usuario usuario);
 	
 	//CONSULTAS PROPIAS

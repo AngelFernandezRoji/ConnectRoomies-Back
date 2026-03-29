@@ -11,7 +11,7 @@ public interface AlquilerService {
 	//CRUD
     List<Alquiler> findAll();
     Alquiler findById(Long id);
-    Alquiler newAlquiler(Alquiler alquiler, Usuario usuario);
+    Alquiler newAlquiler(AlquilerDto dto, Usuario usuario);
     Alquiler updateAlquiler(Alquiler alquiler, Usuario usuario);
     void deleteAlquiler(Long id, Usuario usuario);
 

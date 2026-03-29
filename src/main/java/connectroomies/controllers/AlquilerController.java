@@ -19,6 +19,7 @@ import connectroomies.model.dtos.AlquilerDto;
 import connectroomies.model.entities.Alquiler;
 import connectroomies.model.entities.Usuario;
 import connectroomies.model.mappers.AlquilerMapper;
+import connectroomies.security.MyUserDetails;
 import connectroomies.services.AlquilerService;
 import connectroomies.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -55,12 +56,13 @@ public class AlquilerController {
 
     @PreAuthorize("hasAnyRole('ADMIN','USUARIO')")
     @PostMapping
-    public ResponseEntity<?> createAlquiler(@RequestBody Alquiler alquiler, Authentication authentication) {
+    public ResponseEntity<?> createAlquiler(@RequestBody AlquilerDto dto, Authentication authentication) {
     	try {
-    		Usuario usuario = (Usuario) authentication.getPrincipal();
-
-    		alquilerService.newAlquiler(alquiler, usuario);
-            return ResponseEntity.status(201).body("Alquiler creado correctamente");
+    		MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
+            Usuario usuario = userDetails.getUsuario();
+            
+    		Alquiler alquiler = alquilerService.newAlquiler(dto, usuario);
+            return ResponseEntity.status(201).body(AlquilerMapper.toDto(alquiler));
         } catch (RuntimeException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {

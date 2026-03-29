@@ -1,6 +1,7 @@
 package connectroomies.model.entities;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -45,9 +46,18 @@ public class Vivienda {
 	private String descripcion;
 	private Double metros;
 	private Integer banos;
+	@Column(name = "habitaciones_totales")
 	private Integer habitacionesTotales;
 	private String normas;
-	
+
+	private String comodidades;
+	public List<String> getComodidadesList() {
+        if (comodidades == null || comodidades.isBlank()) {
+            return List.of();
+        }
+        return Arrays.asList(comodidades.split(";"));
+    }
+
 	//MÉTODO PARA QUE LA FEHCA_CREACION SE COJA DE MANERA AUTOMÁTICA
 	@PrePersist
 	protected void onCreate() {

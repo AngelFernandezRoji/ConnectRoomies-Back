@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
+import connectroomies.model.dtos.ResgistrarUsuarioDto;
 import connectroomies.model.dtos.UsuarioDto;
 import connectroomies.model.entities.Usuario;
 import connectroomies.model.mappers.UsuarioMapper;
@@ -36,9 +37,9 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody Usuario usuario) {
+    public ResponseEntity<?> createUser(@RequestBody ResgistrarUsuarioDto dto) {
         try {
-            UsuarioDto dto = UsuarioMapper.toDto(usuarioService.newUsuario(usuario));
+            usuarioService.newUsuario(dto);
             return ResponseEntity.status(201).body("Añadido correctamente: " + dto.getNombre());
         } catch (Exception e) {
             return ResponseEntity.status(400).body(e.getMessage());

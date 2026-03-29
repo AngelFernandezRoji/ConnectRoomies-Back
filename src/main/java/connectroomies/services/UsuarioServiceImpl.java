@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import connectroomies.model.dtos.ResgistrarUsuarioDto;
 import connectroomies.model.entities.Rol;
 import connectroomies.model.entities.Usuario;
 import connectroomies.model.repositories.RolRepository;
@@ -32,42 +33,49 @@ public class UsuarioServiceImpl implements UsuarioService {
 				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 	}
 	@Override
-	public Usuario newUsuario(Usuario usuario) {
+	public Usuario newUsuario(ResgistrarUsuarioDto dto) {
 		//Validaciones básicas
-		if (usuario.getNombre() == null || usuario.getNombre().isBlank()) {
-        	throw new IllegalArgumentException("El nombre es necesario");
-    	}
-		if (usuario.getEmail() == null || usuario.getEmail().isBlank()) {
+		if (dto.getNombre() == null || dto.getNombre().isBlank()) {
+			throw new IllegalArgumentException("El nombre es necesario");
+		}
+
+		if (dto.getEmail() == null || dto.getEmail().isBlank()) {
 			throw new RuntimeException("El email es necesario");
 		}
-		if(!usuario.getEmail().contains("@")){
-		    throw new RuntimeException("Email no válido");
+
+		if (!dto.getEmail().contains("@")) {
+			throw new RuntimeException("Email no válido");
 		}
-		if(usuarioRepository.existsByEmail(usuario.getEmail())){
-		    throw new RuntimeException("El email ya está registrado");
+
+		if (usuarioRepository.existsByEmail(dto.getEmail())) {
+			throw new RuntimeException("El email ya está registrado");
 		}
-		if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
+
+		if (dto.getPassword() == null || dto.getPassword().isBlank()) {
 			throw new RuntimeException("La contraseña es necesaria");
 		}
-		
-		//Encriptar la password y asignar estado ACTIVO por defecto al "dar de alta"
-		usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-		usuario.setEstado("ACTIVO");
-		
-		//Asignación del Rol -> USUARIO por defecto, PROPIETARIO si nos lo manda el front
-		Rol rol;
 
-		if (usuario.getRoles() != null && !usuario.getRoles().isEmpty() &&
-		    "PROPIETARIO".equalsIgnoreCase(usuario.getRoles().get(0).getNombre())) {
-		    rol = rolRepository.findByNombre("PROPIETARIO")
-		            .orElseThrow(() -> new RuntimeException("Error al asignar Rol: PROPIETARIO"));
-		} else {
-		    rol = rolRepository.findByNombre("USUARIO")
-		            .orElseThrow(() -> new RuntimeException("Error al asignar Rol: USUARIO"));
+		Usuario usuario = new Usuario();
+		usuario.setNombre(dto.getNombre());
+		usuario.setApellidos(dto.getApellidos());
+		usuario.setTelefono(dto.getTelefono());
+		usuario.setEmail(dto.getEmail());
+
+		usuario.setPassword(passwordEncoder.encode(dto.getPassword())); // Encriptar contraseña
+
+		usuario.setEstado("ACTIVO"); // Estado por defecto
+
+		String rolNombre = "USUARIO"; // Rol por defecto
+
+		if ("PROPIETARIO".equalsIgnoreCase(dto.getRol())) {
+			rolNombre = "PROPIETARIO";
 		}
 
+		Rol rol = rolRepository.findByNombre(rolNombre)
+				.orElseThrow(() -> new RuntimeException("Error al asignar rol"));
+
 		usuario.setRoles(List.of(rol));
-		
+
 		return usuarioRepository.save(usuario);
 	}
 

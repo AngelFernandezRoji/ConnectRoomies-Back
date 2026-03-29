@@ -14,15 +14,22 @@ public class ViviendaDto {
     private String localidad;
     private String provincia;
     private String direccion;
+    private String codigoPostal;
     private Double precio;
     private Integer disponible;
     private LocalDateTime fechaCreacion;
-    private PropietarioDto propietario;
-    private List<ImagenViviendaDto> imagenesVivienda;
     private String descripcion;
     private Double metros;
     private Integer banos;
     private Integer habitacionesTotales;
     private String normas;
+    
+    private List<String> comodidades;
+    
+    private PropietarioDto propietario;
+
+    private List<ImagenViviendaDto> imagenesVivienda;
+
+   
     
 }

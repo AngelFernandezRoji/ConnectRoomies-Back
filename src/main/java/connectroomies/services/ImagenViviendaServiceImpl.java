@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import connectroomies.model.entities.ImagenVivienda;
+import connectroomies.model.entities.Usuario;
 import connectroomies.model.entities.Vivienda;
 import connectroomies.model.repositories.ImagenViviendaRepository;
 import connectroomies.model.repositories.ViviendaRepository;
@@ -25,7 +26,7 @@ public class ImagenViviendaServiceImpl implements ImagenViviendaService {
     
     
 	@Override
-	public ImagenVivienda subirImagen(Long viviendaId, MultipartFile file) {
+	public ImagenVivienda subirImagen(Long viviendaId, MultipartFile file, Usuario usuario) {
 		
 		if (file == null || file.isEmpty()) {
 	        throw new RuntimeException("El archivo está vacío");
@@ -36,6 +37,10 @@ public class ImagenViviendaServiceImpl implements ImagenViviendaService {
 		
 		Vivienda vivienda = viviendaRepo.findById(viviendaId)
                 .orElseThrow(() -> new RuntimeException("Vivienda no encontrada"));
+		
+		if (!vivienda.getPropietario().getId().equals(usuario.getId())) {
+        	throw new RuntimeException("No tienes permisos para subir imágenes a esta vivienda");
+    	}
 		
         try {
         	//FGuardar archivo

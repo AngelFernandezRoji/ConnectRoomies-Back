@@ -33,24 +33,29 @@ public class ViviendaServiceImpl implements ViviendaService {
 				.orElseThrow(() -> new RuntimeException("Vivienda no encontrada"));
 	}
 	@Override
-	public Vivienda newVivienda(Vivienda vivienda, Usuario creador) {
-		if (vivienda.getTitulo() == null || vivienda.getTitulo().isBlank()) {
+	public Vivienda newVivienda(ViviendaDto dto, Usuario creador) {
+		if (dto.getTitulo() == null || dto.getTitulo().isBlank()) {
 			throw new IllegalArgumentException("El título es obligatorio");
 		}
-		if (vivienda.getPrecio() == null || vivienda.getPrecio() <= 0) {
+		if (dto.getPrecio() == null || dto.getPrecio() <= 0) {
 			throw new IllegalArgumentException("El precio debe ser mayor que 0");
 		}
-		if (creador.getRoles().stream().noneMatch(r -> r.getNombre().equals("PROPIETARIO") || r.getNombre().equals("ADMIN"))) {
-	        throw new RuntimeException("Solo los propietarios pueden publicar viviendas");
-	    }
+		boolean isPropietario = creador.getRoles().stream()
+            .anyMatch(r -> r.getNombre().equals("PROPIETARIO") || r.getNombre().equals("ADMIN"));
+		
+		if (!isPropietario) {
+			throw new RuntimeException("Solo los propietarios pueden publicar viviendas");
+		}
+		
+		Vivienda vivienda = ViviendaMapper.toEntity(dto);
 		vivienda.setPropietario(creador);
 		vivienda.setDisponible(1);
 
 		return viviendaRepository.save(vivienda);
 	}
 	@Override
-	public Vivienda updateVivienda(Vivienda vivienda, Usuario usuario) {
-		Vivienda currentVivienda = viviendaRepository.findById(vivienda.getId())
+	public Vivienda updateVivienda(Long id, ViviendaDto dto, Usuario usuario) {
+		Vivienda currentVivienda = viviendaRepository.findById(dto.getId())
 									.orElseThrow(() -> new RuntimeException("Vivienda no encontrada"));
 		
 		boolean isPropietario = currentVivienda.getPropietario().getId().equals(usuario.getId());
@@ -61,14 +66,25 @@ public class ViviendaServiceImpl implements ViviendaService {
 		    throw new RuntimeException("No tienes permisos para modificar esta vivienda");
 		}
 		
-		currentVivienda.setTitulo(vivienda.getTitulo());
-		currentVivienda.setTipo(vivienda.getTipo());
-		currentVivienda.setDireccion(vivienda.getDireccion());
-		currentVivienda.setLocalidad(vivienda.getLocalidad());
-		currentVivienda.setProvincia(vivienda.getProvincia());
-		currentVivienda.setCodigoPostal(vivienda.getCodigoPostal());
-		currentVivienda.setPrecio(vivienda.getPrecio());
-		currentVivienda.setDisponible(vivienda.getDisponible());
+		if (dto.getTitulo() != null) currentVivienda.setTitulo(dto.getTitulo());
+		if (dto.getTipo() != null) currentVivienda.setTipo(dto.getTipo());
+		if (dto.getDireccion() != null) currentVivienda.setDireccion(dto.getDireccion());
+		if (dto.getLocalidad() != null) currentVivienda.setLocalidad(dto.getLocalidad());
+		if (dto.getProvincia() != null) currentVivienda.setProvincia(dto.getProvincia());
+		if (dto.getCodigoPostal() != null) currentVivienda.setCodigoPostal(dto.getCodigoPostal());
+		if (dto.getPrecio() != null) currentVivienda.setPrecio(dto.getPrecio());
+		if (dto.getDescripcion() != null) currentVivienda.setDescripcion(dto.getDescripcion());
+		if (dto.getMetros() != null) currentVivienda.setMetros(dto.getMetros());
+		if (dto.getBanos() != null) currentVivienda.setBanos(dto.getBanos());
+		if (dto.getHabitacionesTotales() != null) currentVivienda.setHabitacionesTotales(dto.getHabitacionesTotales());
+		if (dto.getNormas() != null) currentVivienda.setNormas(dto.getNormas());
+		if (dto.getComodidades() != null) {
+			currentVivienda.setComodidades(String.join(";", dto.getComodidades()));
+		}
+		if (dto.getDisponible() != null) {
+			currentVivienda.setDisponible(dto.getDisponible());
+		}
+		
 		return viviendaRepository.save(currentVivienda);
 
 	}

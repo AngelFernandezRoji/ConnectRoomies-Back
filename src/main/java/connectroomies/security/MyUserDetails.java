@@ -15,6 +15,10 @@ public class MyUserDetails implements UserDetails {
 
     private final Usuario usuario;
 
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
     	 List<GrantedAuthority> authorities = usuario.getRoles().stream()
