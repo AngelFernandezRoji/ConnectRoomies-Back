@@ -49,15 +49,15 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUserById(@PathVariable Long id,
+    public ResponseEntity<?> updateUserById(@PathVariable Long id,
                                             @RequestBody Usuario usuario) {
         try {
         	usuario.setId(id);
-            usuarioService.updateUsuario(usuario);
+        	UsuarioDto dto = UsuarioMapper.toDto(usuarioService.updateUsuario(usuario));
+        	return ResponseEntity.ok(dto);
         } catch (Exception e) {
-        	return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-        }
-		return new ResponseEntity<Void>(HttpStatus.OK);
+        	return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error al actualizar el usuario");
+        }		
     }
  
     @DeleteMapping("/{id}")
