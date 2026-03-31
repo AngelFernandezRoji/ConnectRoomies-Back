@@ -12,54 +12,70 @@ import connectroomies.model.entities.Usuario;
 import connectroomies.model.entities.Vivienda;
 import connectroomies.model.repositories.ImagenViviendaRepository;
 import connectroomies.model.repositories.ViviendaRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ImagenViviendaServiceImpl implements ImagenViviendaService {
 
 	private final ImagenViviendaRepository imagenRepo;
     private final ViviendaRepository viviendaRepo;
 
-    private final String UPLOAD_DIR = "uploads/"; // /var/www/connectroomies/uploads/ -> PARA EL DESPLIEGUE
+	private final String UPLOAD_DIR = System.getProperty("user.home") + "/connectroomies/uploads/"; // /var/www/connectroomies/uploads/ -> PARA EL DESPLIEGUE
 	
     
     
 	@Override
 	public ImagenVivienda subirImagen(Long viviendaId, MultipartFile file, Usuario usuario) {
-		
+
+		final String UPLOAD_DIR = System.getProperty("user.home") + "/connectroomies/uploads/";
+
 		if (file == null || file.isEmpty()) {
-	        throw new RuntimeException("El archivo está vacío");
-	    }
-	    if (file.getSize() > 5_000_000) {
-	        throw new RuntimeException("Archivo muy pesado (máx 5MB)");
-	    }
-		
+			throw new RuntimeException("El archivo está vacío");
+		}
+		if (file.getSize() > 5_000_000) {
+			throw new RuntimeException("Archivo muy pesado (máx 5MB)");
+		}
+
 		Vivienda vivienda = viviendaRepo.findById(viviendaId)
-                .orElseThrow(() -> new RuntimeException("Vivienda no encontrada"));
-		
+				.orElseThrow(() -> new RuntimeException("Vivienda no encontrada"));
+
 		if (!vivienda.getPropietario().getId().equals(usuario.getId())) {
-        	throw new RuntimeException("No tienes permisos para subir imágenes a esta vivienda");
-    	}
-		
-        try {
-        	//FGuardar archivo
-            File carpeta = new File(UPLOAD_DIR);
-            if(!carpeta.exists()) carpeta.mkdirs();
+			throw new RuntimeException("No tienes permisos para subir imágenes a esta vivienda");
+		}
 
-            String filePath = UPLOAD_DIR + System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            file.transferTo(new File(filePath));
+		File carpeta = new File(UPLOAD_DIR);
+		if (!carpeta.exists()) {
+			boolean creada = carpeta.mkdirs();
+			System.out.println("Carpeta creada: " + creada + " en " + UPLOAD_DIR);
+		}
 
-            
-            ImagenVivienda img = ImagenVivienda.builder()
-                    .vivienda(vivienda)
-                    .urlImg(filePath)
-                    .build();
+		try {
+			// Limpiar nombre de archivo
+			String original = file.getOriginalFilename();
+			String cleanName = original != null ? original.replaceAll("\\s+", "_") : "imagen.jpg";
 
-            return imagenRepo.save(img);
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar la imagen", e);
-        }
+			String filePath = UPLOAD_DIR + System.currentTimeMillis() + "_" + cleanName;
+
+			file.transferTo(new File(filePath));
+			System.out.println("Archivo guardado en disco: " + filePath);
+
+			ImagenVivienda img = ImagenVivienda.builder()
+					.vivienda(vivienda)
+					.urlImg(filePath)
+					.build();
+
+			ImagenVivienda saved = imagenRepo.save(img);
+			System.out.println("Imagen guardada en BBDD con ID: " + saved.getId());
+
+			return saved;
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error al guardar la imagen: " + e.getMessage());
+		}
 	}
 
 	@Override

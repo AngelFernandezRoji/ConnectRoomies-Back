@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import connectroomies.model.dtos.AlquilerDto;
+import connectroomies.model.dtos.RegistrarAlquilerDto;
 import connectroomies.model.entities.Alquiler;
 import connectroomies.model.entities.Habitacion;
 import connectroomies.model.entities.Usuario;
@@ -39,57 +40,69 @@ public class AlquilerServiceImpl implements AlquilerService {
                 .orElseThrow(() -> new RuntimeException("Alquiler no encontrado"));
     }
     @Override
-    public Alquiler newAlquiler(Alquiler alquiler, Usuario usuario) {
-    	//Validar Rol
-        boolean isUsuario = usuario.getRoles().stream().anyMatch(r -> r.getNombre().equals("USUARIO"));
-        boolean isAdmin = usuario.getRoles().stream().anyMatch(r -> r.getNombre().equals("ADMIN"));
+    public Alquiler newAlquiler(RegistrarAlquilerDto dto, Usuario usuario) {
+        boolean isUsuario = usuario.getRoles().stream()
+                .anyMatch(r -> r.getNombre().equals("USUARIO"));
+        boolean isAdmin = usuario.getRoles().stream()
+                .anyMatch(r -> r.getNombre().equals("ADMIN"));
+
         if (!isUsuario && !isAdmin) {
-            throw new RuntimeException("Solo los usuarios pueden alquilar habitaciones");
+            throw new RuntimeException("Solo los usuarios pueden alquilar");
         }
-        //Validar fechas
-        if (alquiler.getFechaInicio() == null) {
-        	throw new RuntimeException("La fecha de inicio es necesaria");
+
+
+        if (dto.getFechaInicio() == null) {
+            throw new RuntimeException("La fecha de inicio es necesaria");
         }
-        if (alquiler.getFechaFin() == null) {
-        	throw new RuntimeException("La fecha de fin es necesaria");
+        if (dto.getFechaFin() == null) {
+            throw new RuntimeException("La fecha de fin es necesaria");
         }
-        if (alquiler.getFechaFin().isBefore(alquiler.getFechaInicio())) {
+        if (dto.getFechaFin().isBefore(dto.getFechaInicio())) {
             throw new RuntimeException("La fecha de fin no puede ser anterior a la de inicio");
         }
-        //Validar que el usuario no tiene alquiler activo
-        boolean tieneActivo = alquilerRepository.existsByInquilinoIdAndEstado(usuario.getId(), EstadoAlquiler.ACTIVO);
+
+        boolean tieneActivo = alquilerRepository
+                .existsByInquilinoIdAndEstado(usuario.getId(), EstadoAlquiler.ACTIVO);
+
         if (tieneActivo) {
             throw new RuntimeException("El usuario ya tiene un alquiler activo");
         }
-        //Validar habitación o vivienda completa
-        if (alquiler.getHabitacion() != null) {
-            Habitacion habitacion = habitacionRepository.findById(alquiler.getHabitacion().getId())
+
+        Alquiler alquiler = new Alquiler();
+        alquiler.setFechaInicio(dto.getFechaInicio());
+        alquiler.setFechaFin(dto.getFechaFin());
+        alquiler.setInquilino(usuario);
+
+
+        if (dto.getHabitacionId() != null) {
+
+            Habitacion habitacion = habitacionRepository.findById(dto.getHabitacionId())
                     .orElseThrow(() -> new RuntimeException("Habitación no encontrada"));
-            
+
             if (habitacion.getDisponible() == 0) {
                 throw new RuntimeException("La habitación no está disponible");
             }
-            // Marcar como no disponible
+
             habitacion.setDisponible(0);
 
             alquiler.setHabitacion(habitacion);
             alquiler.setVivienda(habitacion.getVivienda());
-        } else if (alquiler.getVivienda() != null) {
-            Vivienda vivienda = viviendaRepository.findById(alquiler.getVivienda().getId())
+
+        } else if (dto.getViviendaId() != null) {
+
+            Vivienda vivienda = viviendaRepository.findById(dto.getViviendaId())
                     .orElseThrow(() -> new RuntimeException("Vivienda no encontrada"));
 
             alquiler.setVivienda(vivienda);
             alquiler.setHabitacion(null);
+
         } else {
-            throw new RuntimeException("Debe indicar habitación o vivienda a alquilar");
+            throw new RuntimeException("Debe indicar habitación o vivienda");
         }
 
-        //Asignar inquilino y estado
-        alquiler.setInquilino(usuario);
         alquiler.setEstado(EstadoAlquiler.ACTIVO);
 
         return alquilerRepository.save(alquiler);
-
     }
     @Override
     public Alquiler updateAlquiler(Alquiler alquiler, Usuario usuario) {

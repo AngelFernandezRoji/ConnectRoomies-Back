@@ -6,4 +6,5 @@ import lombok.Data;
 public class ImagenViviendaDto {
     private Long id;
     private String urlImg;
+    private Long viviendaId;
 }

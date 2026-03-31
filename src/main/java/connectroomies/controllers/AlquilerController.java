@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import connectroomies.model.dtos.AlquilerDto;
+import connectroomies.model.dtos.RegistrarAlquilerDto;
 import connectroomies.model.entities.Alquiler;
 import connectroomies.model.entities.Usuario;
 import connectroomies.model.mappers.AlquilerMapper;
@@ -56,7 +57,7 @@ public class AlquilerController {
 
     @PreAuthorize("hasAnyRole('ADMIN','USUARIO')")
     @PostMapping
-    public ResponseEntity<?> createAlquiler(@RequestBody AlquilerDto dto, Authentication authentication) {
+    public ResponseEntity<?> createAlquiler(@RequestBody RegistrarAlquilerDto dto, Authentication authentication) {
     	try {
     		MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
             Usuario usuario = userDetails.getUsuario();

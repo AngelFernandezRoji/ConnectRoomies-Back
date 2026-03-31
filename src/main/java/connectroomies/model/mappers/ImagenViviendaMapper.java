@@ -9,6 +9,9 @@ public class ImagenViviendaMapper {
         ImagenViviendaDto dto = new ImagenViviendaDto();
         dto.setId(imagen.getId());
         dto.setUrlImg(imagen.getUrlImg());
+        dto.setViviendaId(
+            imagen.getVivienda() != null ? imagen.getVivienda().getId() : null
+        );
         return dto;
     }
 }
