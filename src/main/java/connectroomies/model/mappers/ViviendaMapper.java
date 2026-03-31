@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+
 import connectroomies.model.dtos.PropietarioDto;
 import connectroomies.model.dtos.ViviendaDto;
 import connectroomies.model.entities.Vivienda;
@@ -14,7 +16,7 @@ public class ViviendaMapper {
 		ViviendaDto dto = new ViviendaDto();
         dto.setId(vivienda.getId());
         dto.setTitulo(vivienda.getTitulo());
-        dto.setTipo(vivienda.getTipo());
+        dto.setTipo(formatoTipo(vivienda.getTipo()));
         dto.setDireccion(vivienda.getDireccion());
         dto.setLocalidad(vivienda.getLocalidad());
         dto.setProvincia(vivienda.getProvincia());
@@ -76,5 +78,14 @@ public class ViviendaMapper {
         );
 
         return vivienda;
+    }
+    
+    private static String formatoTipo(String tipo) {
+    	if(StringUtils.isBlank(tipo)) {
+    		return tipo;
+    	}
+    	
+    	tipo = tipo.toLowerCase();
+    	return tipo.substring(0, 1).toUpperCase() + tipo.substring(1);
     }
 }
