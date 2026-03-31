@@ -87,7 +87,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 		currentUsuario.setApellidos(usuario.getApellidos());
 		currentUsuario.setTelefono(usuario.getTelefono());
 		currentUsuario.setEmail(usuario.getEmail());
-		currentUsuario.setEstado(usuario.getEstado());
 		return usuarioRepository.save(currentUsuario);
 	}
 	@Override

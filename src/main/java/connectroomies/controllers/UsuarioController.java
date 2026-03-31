@@ -2,6 +2,7 @@ package connectroomies.controllers;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,17 +48,15 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUserById(@PathVariable Long id,
+    public ResponseEntity<Void> updateUserById(@PathVariable Long id,
                                             @RequestBody Usuario usuario) {
         try {
         	usuario.setId(id);
-            UsuarioDto dto = UsuarioMapper.toDto(usuarioService.updateUsuario(usuario));
-            return ResponseEntity.ok("Usuario actualizado: " + dto.getNombre());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body("Error al actualizar usuario: no se encontró");
+            usuarioService.updateUsuario(usuario);
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error al actualizar usuario");
+        	return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
+		return new ResponseEntity<Void>(HttpStatus.OK);
     }
  
     @DeleteMapping("/{id}")
