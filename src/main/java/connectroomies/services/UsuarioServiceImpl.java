@@ -105,6 +105,31 @@ public class UsuarioServiceImpl implements UsuarioService {
 		return usuarioRepository.findByEmail(email)
 								.orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
 	}
+	
+	@Override
+	public void cambiarPassword(String email, String oldPassword, String newPassword) {
+	    if (email == null || email.isBlank()) {
+	        throw new RuntimeException("El email es obligatorio");
+	    }
+
+	    if (oldPassword == null || oldPassword.isBlank()) {
+	        throw new RuntimeException("La contraseña antigua es obligatoria");
+	    }
+
+	    if (newPassword == null || newPassword.isBlank()) {
+	        throw new RuntimeException("La nueva contraseña es obligatoria");
+	    }
+
+	    Usuario usuario = usuarioRepository.findByEmail(email)
+	        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+	    if (!passwordEncoder.matches(oldPassword, usuario.getPassword())) {
+	        throw new RuntimeException("La contraseña antigua no es correcta");
+	    }
+
+	    usuario.setPassword(passwordEncoder.encode(newPassword));
+	    usuarioRepository.save(usuario);
+	}
 
 
 }

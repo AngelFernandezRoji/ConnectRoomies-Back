@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
+import connectroomies.model.dtos.CambiarPasswordDto;
 import connectroomies.model.dtos.ResgistrarUsuarioDto;
 import connectroomies.model.dtos.UsuarioDto;
 import connectroomies.model.entities.Usuario;
@@ -68,6 +69,22 @@ public class UsuarioController {
             return ResponseEntity.status(404).body("No se ha encontrado el usuario indicado");
         } catch (Exception e) {
             return ResponseEntity.status(400).body("Error al eliminar usuario");
+        }
+    }
+    
+    @PutMapping("/restablecer-password")
+    public ResponseEntity<?> restablecerPassword(@RequestBody CambiarPasswordDto dto) {
+        try {
+            usuarioService.cambiarPassword(
+                dto.getEmail(),
+                dto.getOldPassword(),
+                dto.getNewPassword()
+            );
+            return ResponseEntity.ok("Contraseña actualizada correctamente");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al actualizar la contraseña");
         }
     }
 }

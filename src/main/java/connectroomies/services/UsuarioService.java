@@ -13,5 +13,6 @@ public interface UsuarioService {
     Usuario newUsuario(ResgistrarUsuarioDto dto);
     Usuario updateUsuario(Usuario usuario);
     void deleteUsuario(Long id);
+    void cambiarPassword(String email, String oldPassword, String newPassword);
     
 }
