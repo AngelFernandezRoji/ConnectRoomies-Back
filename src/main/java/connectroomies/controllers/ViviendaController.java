@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import connectroomies.model.entities.Usuario;
 import connectroomies.model.entities.Vivienda;
 import connectroomies.model.mappers.ViviendaMapper;
 import connectroomies.security.MyUserDetails;
+import connectroomies.services.UsuarioService;
 import connectroomies.services.ViviendaService;
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class ViviendaController {
 
 	private final ViviendaService viviendaService;
+	private final UsuarioService usuarioService;
 	
 	@GetMapping
 	public List<ViviendaDto> getAllViviendas() {
@@ -99,7 +102,8 @@ public class ViviendaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteVivienda(@PathVariable Long id, Authentication authentication) {
         try {
-        	Usuario usuario = (Usuario) authentication.getPrincipal();
+        	MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
+            Usuario usuario = userDetails.getUsuario();
         	
             viviendaService.deleteVivienda(id, usuario);
             return ResponseEntity.ok("Vivienda eliminada correctamente");
@@ -122,9 +126,9 @@ public class ViviendaController {
                 .toList();
     }
     
-    @GetMapping("/viviendas-propietario")
-    public ResponseEntity<List<ViviendaDto>> getMisViviendas(@RequestParam Long propietarioId) {
-        return ResponseEntity.ok(viviendaService.getViviendasByPropietario(propietarioId));
+    @GetMapping("/viviendas-propietario/{id}")
+    public ResponseEntity<List<ViviendaDto>> getMisViviendas(@PathVariable Long id) {
+        return ResponseEntity.ok(viviendaService.getViviendasByPropietario(id));
     }
     
 }

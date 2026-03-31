@@ -55,7 +55,7 @@ public class ViviendaServiceImpl implements ViviendaService {
 	}
 	@Override
 	public Vivienda updateVivienda(Long id, ViviendaDto dto, Usuario usuario) {
-		Vivienda currentVivienda = viviendaRepository.findById(dto.getId())
+		Vivienda currentVivienda = viviendaRepository.findById(id)
 									.orElseThrow(() -> new RuntimeException("Vivienda no encontrada"));
 		
 		boolean isPropietario = currentVivienda.getPropietario().getId().equals(usuario.getId());
