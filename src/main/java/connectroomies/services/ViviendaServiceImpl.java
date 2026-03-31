@@ -1,12 +1,15 @@
 package connectroomies.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import connectroomies.model.dtos.HabitacionDto;
+import connectroomies.model.dtos.ImagenViviendaDto;
 import connectroomies.model.dtos.ViviendaDto;
 import connectroomies.model.entities.Habitacion;
+import connectroomies.model.entities.ImagenVivienda;
 import connectroomies.model.entities.Usuario;
 import connectroomies.model.entities.Vivienda;
 import connectroomies.model.mappers.HabitacionMapper;
@@ -48,6 +51,20 @@ public class ViviendaServiceImpl implements ViviendaService {
 		}
 		
 		Vivienda vivienda = ViviendaMapper.toEntity(dto);
+		
+		List<ImagenVivienda> imagenes = new ArrayList<>();
+		if(dto.getImagenesVivienda() != null && !dto.getImagenesVivienda().isEmpty()) {
+			for (ImagenViviendaDto imagenDto : dto.getImagenesVivienda()) {
+				ImagenVivienda imagen = new ImagenVivienda();
+				imagen.setUrlImg(imagenDto.getUrlImg());
+				imagen.setId(imagenDto.getId());
+				imagen.setVivienda(vivienda);
+				imagenes.add(imagen);
+			}
+			
+			vivienda.setImagenesVivienda(imagenes);
+		}
+		
 		vivienda.setPropietario(creador);
 		vivienda.setDisponible(1);
 

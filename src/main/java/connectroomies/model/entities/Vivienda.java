@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -75,7 +76,7 @@ public class Vivienda {
 	private List<Habitacion> habitaciones;
 
 	//RELACIÓN CON IMAGEN
-	@OneToMany(mappedBy = "vivienda")
+	@OneToMany(mappedBy = "vivienda", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderBy("id ASC")
 	@JsonIgnore
 	private List<ImagenVivienda> imagenesVivienda;
