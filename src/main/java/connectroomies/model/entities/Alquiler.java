@@ -48,8 +48,4 @@ public class Alquiler {
     @JoinColumn(name = "vivienda_id")
     private Vivienda vivienda;
 
-    @ManyToOne
-    @JoinColumn(name = "habitacion_id")
-    private Habitacion habitacion;   
-
 }

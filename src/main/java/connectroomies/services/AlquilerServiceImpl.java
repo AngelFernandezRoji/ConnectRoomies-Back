@@ -8,11 +8,9 @@ import connectroomies.model.dtos.AlquilerDto;
 import connectroomies.model.dtos.AlquilerResponseDto;
 import connectroomies.model.dtos.RegistrarAlquilerRequestDto;
 import connectroomies.model.entities.Alquiler;
-import connectroomies.model.entities.Habitacion;
 import connectroomies.model.entities.Usuario;
 import connectroomies.model.entities.Vivienda;
 import connectroomies.model.enums.EstadoAlquiler;
-import connectroomies.model.enums.EstadoUsuario;
 import connectroomies.model.mappers.AlquilerMapper;
 import connectroomies.model.repositories.AlquilerRepository;
 import connectroomies.model.repositories.HabitacionRepository;
@@ -83,13 +81,6 @@ public class AlquilerServiceImpl implements AlquilerService {
     	        throw new RuntimeException("No tienes permisos para eliminar este alquiler");
     	    }
 
-    	    Habitacion habitacion = alquiler.getHabitacion();
-
-    	    if (habitacion != null) {
-    	        habitacion.setDisponible(1);
-                habitacionRepository.save(habitacion);
-    	    }
-
     	    alquilerRepository.delete(alquiler);
     }
 	@Override
@@ -120,11 +111,6 @@ public class AlquilerServiceImpl implements AlquilerService {
 	        throw new RuntimeException("El alquiler ya finalizó");
 	    }
 
-	    if (alquiler.getHabitacion() != null) {
-	        Habitacion habitacion = alquiler.getHabitacion();
-	        habitacion.setDisponible(1);
-	    }
-
 	    alquiler.setEstado(EstadoAlquiler.CANCELADO);
 
 	    alquilerRepository.save(alquiler);
@@ -144,13 +130,6 @@ public class AlquilerServiceImpl implements AlquilerService {
         alquiler.setEstado(EstadoAlquiler.PENDIENTE);
         alquiler.setInquilino(usuario);
 
-        if (req.getViviendaId() != null && req.getHabitacionId() != null) {
-            throw new RuntimeException("No puedes enviar vivienda y habitación a la vez");
-        }
-        if (req.getViviendaId() == null && req.getHabitacionId() == null) {
-            throw new RuntimeException("Debes indicar vivienda o habitación");
-        }
-
         if (req.getViviendaId() != null) {
             Vivienda vivienda = viviendaRepository.findById(req.getViviendaId())
                     .orElseThrow();
@@ -158,15 +137,6 @@ public class AlquilerServiceImpl implements AlquilerService {
             alquiler.setVivienda(vivienda);
 
             alquiler.setPropietario(vivienda.getPropietario());
-        }
-
-        if (req.getHabitacionId() != null) {
-            Habitacion habitacion = habitacionRepository.findById(req.getHabitacionId())
-                    .orElseThrow();
-
-            alquiler.setHabitacion(habitacion);
-
-            alquiler.setPropietario(habitacion.getVivienda().getPropietario());
         }
 
         alquilerRepository.save(alquiler);

@@ -10,7 +10,6 @@ public class RegistrarAlquilerRequestDto {
     private LocalDateTime fechaFin;
 
     private Long viviendaId;
-    private Long habitacionId;
 
     private String mensaje;
     private Integer duracionMeses;

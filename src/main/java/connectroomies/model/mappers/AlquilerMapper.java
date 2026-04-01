@@ -35,13 +35,6 @@ public class AlquilerMapper {
             viviendaDto.setTitulo(alquiler.getVivienda().getTitulo());
             dto.setVivienda(viviendaDto);
         }
-
-        if (alquiler.getHabitacion() != null) {
-            HabitacionAlquilerDto habitacionDto = new HabitacionAlquilerDto();
-            habitacionDto.setId(alquiler.getHabitacion().getId());
-            habitacionDto.setNombre(alquiler.getHabitacion().getNombre());
-            dto.setHabitacion(habitacionDto);
-        }
         
         return dto;
     }
