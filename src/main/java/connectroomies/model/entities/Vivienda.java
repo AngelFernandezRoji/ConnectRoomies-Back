@@ -42,8 +42,6 @@ public class Vivienda {
 	private String codigoPostal;
 	private Double precio;
 	private Integer disponible;
-	@Column(name="fecha_creacion")
-	private LocalDateTime fechaCreacion;
 	private String descripcion;
 	private Double metros;
 	private Integer banos;
@@ -59,6 +57,9 @@ public class Vivienda {
         return Arrays.asList(comodidades.split(";"));
     }
 
+	@Column(name="fecha_creacion")
+	private LocalDateTime fechaCreacion;
+	
 	//MÉTODO PARA QUE LA FEHCA_CREACION SE COJA DE MANERA AUTOMÁTICA
 	@PrePersist
 	protected void onCreate() {

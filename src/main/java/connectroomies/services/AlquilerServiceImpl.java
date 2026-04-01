@@ -5,12 +5,14 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import connectroomies.model.dtos.AlquilerDto;
-import connectroomies.model.dtos.RegistrarAlquilerDto;
+import connectroomies.model.dtos.AlquilerResponseDto;
+import connectroomies.model.dtos.RegistrarAlquilerRequestDto;
 import connectroomies.model.entities.Alquiler;
 import connectroomies.model.entities.Habitacion;
 import connectroomies.model.entities.Usuario;
 import connectroomies.model.entities.Vivienda;
 import connectroomies.model.enums.EstadoAlquiler;
+import connectroomies.model.enums.EstadoUsuario;
 import connectroomies.model.mappers.AlquilerMapper;
 import connectroomies.model.repositories.AlquilerRepository;
 import connectroomies.model.repositories.HabitacionRepository;
@@ -26,6 +28,9 @@ public class AlquilerServiceImpl implements AlquilerService {
     private final UsuarioRepository usuarioRepository;
     private final ViviendaRepository viviendaRepository;
     private final HabitacionRepository habitacionRepository;
+    
+    
+
 
     //CRUD
     @Override
@@ -39,71 +44,7 @@ public class AlquilerServiceImpl implements AlquilerService {
         return alquilerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Alquiler no encontrado"));
     }
-    @Override
-    public Alquiler newAlquiler(RegistrarAlquilerDto dto, Usuario usuario) {
-        boolean isUsuario = usuario.getRoles().stream()
-                .anyMatch(r -> r.getNombre().equals("USUARIO"));
-        boolean isAdmin = usuario.getRoles().stream()
-                .anyMatch(r -> r.getNombre().equals("ADMIN"));
-
-        if (!isUsuario && !isAdmin) {
-            throw new RuntimeException("Solo los usuarios pueden alquilar");
-        }
-
-
-        if (dto.getFechaInicio() == null) {
-            throw new RuntimeException("La fecha de inicio es necesaria");
-        }
-        if (dto.getFechaFin() == null) {
-            throw new RuntimeException("La fecha de fin es necesaria");
-        }
-        if (dto.getFechaFin().isBefore(dto.getFechaInicio())) {
-            throw new RuntimeException("La fecha de fin no puede ser anterior a la de inicio");
-        }
-
-        boolean tieneActivo = alquilerRepository
-                .existsByInquilinoIdAndEstado(usuario.getId(), EstadoAlquiler.ACTIVO);
-
-        if (tieneActivo) {
-            throw new RuntimeException("El usuario ya tiene un alquiler activo");
-        }
-
-        Alquiler alquiler = new Alquiler();
-        alquiler.setFechaInicio(dto.getFechaInicio());
-        alquiler.setFechaFin(dto.getFechaFin());
-        alquiler.setInquilino(usuario);
-
-
-        if (dto.getHabitacionId() != null) {
-
-            Habitacion habitacion = habitacionRepository.findById(dto.getHabitacionId())
-                    .orElseThrow(() -> new RuntimeException("Habitación no encontrada"));
-
-            if (habitacion.getDisponible() == 0) {
-                throw new RuntimeException("La habitación no está disponible");
-            }
-
-            habitacion.setDisponible(0);
-
-            alquiler.setHabitacion(habitacion);
-            alquiler.setVivienda(habitacion.getVivienda());
-
-        } else if (dto.getViviendaId() != null) {
-
-            Vivienda vivienda = viviendaRepository.findById(dto.getViviendaId())
-                    .orElseThrow(() -> new RuntimeException("Vivienda no encontrada"));
-
-            alquiler.setVivienda(vivienda);
-            alquiler.setHabitacion(null);
-
-        } else {
-            throw new RuntimeException("Debe indicar habitación o vivienda");
-        }
-
-        alquiler.setEstado(EstadoAlquiler.ACTIVO);
-
-        return alquilerRepository.save(alquiler);
-    }
+    
     @Override
     public Alquiler updateAlquiler(Alquiler alquiler, Usuario usuario) {
         
@@ -146,6 +87,7 @@ public class AlquilerServiceImpl implements AlquilerService {
 
     	    if (habitacion != null) {
     	        habitacion.setDisponible(1);
+                habitacionRepository.save(habitacion);
     	    }
 
     	    alquilerRepository.delete(alquiler);
@@ -188,6 +130,82 @@ public class AlquilerServiceImpl implements AlquilerService {
 	    alquilerRepository.save(alquiler);
 	}
 
+    //SOLICITUDES
+    @Override
+    public AlquilerResponseDto crearSolicitud(RegistrarAlquilerRequestDto req, Usuario usuario) {
+        
+        Alquiler alquiler = new Alquiler();
+
+        alquiler.setFechaInicio(req.getFechaInicio());
+        alquiler.setFechaFin(req.getFechaFin());
+        alquiler.setMensaje(req.getMensaje());
+        alquiler.setDuracionMeses(req.getDuracionMeses());
+
+        alquiler.setEstado(EstadoAlquiler.PENDIENTE);
+        alquiler.setInquilino(usuario);
+
+        if (req.getViviendaId() != null && req.getHabitacionId() != null) {
+            throw new RuntimeException("No puedes enviar vivienda y habitación a la vez");
+        }
+        if (req.getViviendaId() == null && req.getHabitacionId() == null) {
+            throw new RuntimeException("Debes indicar vivienda o habitación");
+        }
+
+        if (req.getViviendaId() != null) {
+            Vivienda vivienda = viviendaRepository.findById(req.getViviendaId())
+                    .orElseThrow();
+
+            alquiler.setVivienda(vivienda);
+
+            alquiler.setPropietario(vivienda.getPropietario());
+        }
+
+        if (req.getHabitacionId() != null) {
+            Habitacion habitacion = habitacionRepository.findById(req.getHabitacionId())
+                    .orElseThrow();
+
+            alquiler.setHabitacion(habitacion);
+
+            alquiler.setPropietario(habitacion.getVivienda().getPropietario());
+        }
+
+        alquilerRepository.save(alquiler);
+
+        return AlquilerMapper.toResponseDto(alquiler);
+
+    }
+    @Override
+    public List<AlquilerDto> getSolicitudesPropietario(Long propietarioId) {
+        return alquilerRepository.findByPropietarioId(propietarioId)
+        .stream()
+        .map(AlquilerMapper::toDto)
+        .toList();
+    }
+    public List<AlquilerDto> getSolicitudesActivasPropietario(Long propietarioId) {
+        return alquilerRepository
+        .findByPropietarioIdAndEstado(propietarioId, EstadoAlquiler.ACTIVO)
+        .stream()
+        .map(AlquilerMapper::toDto)
+        .toList();
+    }
+    @Override
+    public void actualizarEstado(Long alquilerId, EstadoAlquiler estado) {
+        Alquiler alquiler = alquilerRepository.findById(alquilerId)
+        .orElseThrow(() -> new RuntimeException("Alquiler no encontrado"));
+
+        alquiler.setEstado(estado);
+
+        alquilerRepository.save(alquiler);
+    }
+    @Override
+    public List<AlquilerDto> getTodasSolicitudes() {
+        return alquilerRepository.findAll()
+        .stream()
+        .map(AlquilerMapper::toDto)
+        .toList();
+    }
+
+    
     
     
 }

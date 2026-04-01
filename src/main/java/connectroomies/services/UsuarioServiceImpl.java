@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import connectroomies.model.dtos.ResgistrarUsuarioDto;
 import connectroomies.model.entities.Rol;
 import connectroomies.model.entities.Usuario;
+import connectroomies.model.enums.EstadoUsuario;
 import connectroomies.model.repositories.RolRepository;
 import connectroomies.model.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +64,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 		usuario.setPassword(passwordEncoder.encode(dto.getPassword())); // Encriptar contraseña
 
-		usuario.setEstado("ACTIVO"); // Estado por defecto
+		usuario.setEstado(EstadoUsuario.ACTIVO); // Estado por defecto al registrarse
 
 		String rolNombre = "USUARIO"; // Rol por defecto
 
@@ -94,7 +95,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 		Usuario usuario = usuarioRepository.findById(id)
 							.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-		usuarioRepository.delete(usuario);
+		usuario.setEstado(EstadoUsuario.SUSPENDIDO);
+		//usuarioRepository.delete(usuario);
 	}
 	
 

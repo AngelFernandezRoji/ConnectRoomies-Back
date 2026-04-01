@@ -23,7 +23,6 @@ public class ViviendaMapper {
         dto.setCodigoPostal(vivienda.getCodigoPostal());
         dto.setPrecio(vivienda.getPrecio());
         dto.setDisponible(vivienda.getDisponible());
-        dto.setFechaCreacion(vivienda.getFechaCreacion());
         dto.setDescripcion(vivienda.getDescripcion());
         dto.setMetros(vivienda.getMetros());
         dto.setBanos(vivienda.getBanos());
@@ -34,8 +33,10 @@ public class ViviendaMapper {
         vivienda.getComodidades() != null && !vivienda.getComodidades().isBlank()
             ? List.of(vivienda.getComodidades().split(";"))
             : Collections.emptyList()
-);
+        );
         
+        dto.setFechaCreacion(vivienda.getFechaCreacion());        
+
         PropietarioDto propietarioDto = new PropietarioDto();
         propietarioDto.setId(vivienda.getPropietario().getId());
         propietarioDto.setNombre(vivienda.getPropietario().getNombre());

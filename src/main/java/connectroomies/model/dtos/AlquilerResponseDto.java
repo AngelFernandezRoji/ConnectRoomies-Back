@@ -5,11 +5,11 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class RegistrarAlquilerDto {
+public class AlquilerResponseDto {
+    private Long id;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
-
-    private Long viviendaId;
-    private Long habitacionId;
-    
+    private String estado;
+    private String mensaje;
+    private Integer duracionMeses;
 }

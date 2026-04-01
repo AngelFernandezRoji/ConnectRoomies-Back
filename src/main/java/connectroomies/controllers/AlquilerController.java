@@ -1,10 +1,10 @@
 package connectroomies.controllers;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import connectroomies.model.dtos.AlquilerDto;
-import connectroomies.model.dtos.RegistrarAlquilerDto;
-import connectroomies.model.entities.Alquiler;
+import connectroomies.model.dtos.AlquilerResponseDto;
+import connectroomies.model.dtos.RegistrarAlquilerRequestDto;
 import connectroomies.model.entities.Usuario;
+import connectroomies.model.enums.EstadoAlquiler;
 import connectroomies.model.mappers.AlquilerMapper;
 import connectroomies.security.MyUserDetails;
 import connectroomies.services.AlquilerService;
-import connectroomies.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 
 
@@ -31,96 +31,82 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/alquileres")
 public class AlquilerController {
-
-    private final AlquilerService alquilerService;
-    private final UsuarioService usuarioService;
     
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping
-    public List<AlquilerDto> getAllAlquileres() {
-        return alquilerService.findAll()
-                .stream()
-                .map(AlquilerMapper::toDto)
-                .toList();
-    }
+    private final AlquilerService alquilerService;
 
-    @PreAuthorize("hasAnyRole('ADMIN','PROPIETARIO','USUARIO')")
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getAlquilerById(@PathVariable Long id) {
-        try {
-            AlquilerDto dto = AlquilerMapper.toDto(alquilerService.findById(id));
-            return ResponseEntity.ok(dto);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body("Alquiler no encontrado");
-        }
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN','USUARIO')")
     @PostMapping
-    public ResponseEntity<?> createAlquiler(@RequestBody RegistrarAlquilerDto dto, Authentication authentication) {
-    	try {
-    		MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
-            Usuario usuario = userDetails.getUsuario();
-            
-    		Alquiler alquiler = alquilerService.newAlquiler(dto, usuario);
-            return ResponseEntity.status(201).body(AlquilerMapper.toDto(alquiler));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al crear alquiler");
-        }
+    public ResponseEntity<AlquilerResponseDto> crearSolicitud(
+            @RequestBody RegistrarAlquilerRequestDto req,
+            @AuthenticationPrincipal MyUserDetails userDetails) {
+
+        Usuario usuario = userDetails.getUsuario();
+
+        AlquilerResponseDto response = alquilerService.crearSolicitud(req, usuario);
+
+        return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateAlquiler(@PathVariable Long id,
-                                            @RequestBody Alquiler alquiler,
-                                            Authentication authentication) {
-        try {
-        	Usuario usuario = (Usuario) authentication.getPrincipal();
-        	
-            alquiler.setId(id);
-            
-            alquilerService.updateAlquiler(alquiler, usuario);
-            return ResponseEntity.ok("Alquiler actualizado correctamente");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body("Error, no se encontró el alquiler");
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error al actualizar alquiler");
-        }
+    @GetMapping
+    public ResponseEntity<List<AlquilerDto>> getTodas() {
+        return ResponseEntity.ok(
+                alquilerService.findAll()
+                        .stream()
+                        .map(AlquilerMapper::toDto)
+                        .toList()
+        );
+    }
+
+    @GetMapping("/propietario")
+    public ResponseEntity<List<AlquilerDto>> getByPropietario(
+            @RequestParam Long propietarioId) {
+
+        return ResponseEntity.ok(
+                alquilerService.getSolicitudesPropietario(propietarioId)
+        );
+    }
+
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<Void> actualizarEstado(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+
+        EstadoAlquiler estado = EstadoAlquiler.valueOf(body.get("estado"));
+
+        alquilerService.actualizarEstado(id, estado);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<AlquilerDto>> getByUsuario(
+            @PathVariable Long usuarioId) {
+
+        return ResponseEntity.ok(
+                alquilerService.getAlquileresByUsuario(usuarioId)
+        );
+    }
+
+    @PutMapping("/{id}/cancelar")
+    public ResponseEntity<Void> cancelarAlquiler(
+            @PathVariable Long id,
+            @AuthenticationPrincipal MyUserDetails userDetails) {
+
+        Usuario usuario = userDetails.getUsuario();
+
+        alquilerService.cancelarAlquiler(id, usuario);
+
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteAlquiler(@PathVariable Long id, Authentication authentication) {
-        try {
-        	Usuario usuario = (Usuario) authentication.getPrincipal();
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal MyUserDetails userDetails) {
 
-        	alquilerService.deleteAlquiler(id, usuario);
-            return ResponseEntity.ok("Alquiler eliminado correctamentw");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body("No se ha encontrado el alquiler indicado");
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body("Error al eliminar el alquiler");
-        }
-    }
+        Usuario usuario = userDetails.getUsuario();
 
-    
-    @GetMapping("/alquileres-usuario")
-    public ResponseEntity<List<AlquilerDto>> getAlquileresUsuario(@RequestParam Long usuarioId){
-    	return ResponseEntity.ok(alquilerService.getAlquileresByUsuario(usuarioId));
-    }
-    
-    
-    @PutMapping("/{id}/cancelar")
-    public ResponseEntity<?> cancelarAlquiler(@PathVariable Long id,
-                                              @RequestParam Long usuarioId) {
-        try {
-            Usuario usuario = usuarioService.findById(usuarioId);
+        alquilerService.deleteAlquiler(id, usuario);
 
-            alquilerService.cancelarAlquiler(id, usuario);
-
-            return ResponseEntity.ok("Alquiler cancelado correctamente");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        }
+        return ResponseEntity.noContent().build();
     }
 }

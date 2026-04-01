@@ -30,12 +30,19 @@ public class Alquiler {
     private Long id;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
+    private Integer duracionMeses;
+    private String mensaje;
+
     @Enumerated(EnumType.STRING)
     private EstadoAlquiler estado;
     
     @ManyToOne
     @JoinColumn(name = "inquilino_id")
     private Usuario inquilino;
+
+    @ManyToOne
+    @JoinColumn(name = "propietario_id")
+    private Usuario propietario;
 
     @ManyToOne
     @JoinColumn(name = "vivienda_id")

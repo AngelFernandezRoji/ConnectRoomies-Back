@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import connectroomies.model.entities.Rol;
 import connectroomies.model.entities.Usuario;
+import connectroomies.model.enums.EstadoUsuario;
 import connectroomies.model.repositories.RolRepository;
 import connectroomies.model.repositories.UsuarioRepository;
 
@@ -46,7 +47,7 @@ public class ConnectRoomiesApplication {
                     .apellidos("Principal")
                     .email("admin@connectroomies.com")
                     .password(encoder.encode("admincr1234"))
-                    .estado("ACTIVO")
+                    .estado(EstadoUsuario.ACTIVO)
                     .roles(List.of(adminRole))
                     .build();
 

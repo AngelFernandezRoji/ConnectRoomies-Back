@@ -1,6 +1,7 @@
 package connectroomies.security;
 
 import connectroomies.model.entities.Usuario;
+import connectroomies.model.enums.EstadoUsuario;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -51,6 +52,6 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return "ACTIVO".equalsIgnoreCase(usuario.getEstado());
+        return EstadoUsuario.ACTIVO.equals(usuario.getEstado());
     }
 }

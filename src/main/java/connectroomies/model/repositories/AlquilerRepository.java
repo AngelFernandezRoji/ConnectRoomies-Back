@@ -11,5 +11,7 @@ public interface AlquilerRepository extends JpaRepository<Alquiler, Long>{
 
 	boolean existsByInquilinoIdAndEstado(Long inquilinoId, EstadoAlquiler estado);
 	List<Alquiler> findByInquilinoId(Long inquilinoId);
+	List<Alquiler> findByPropietarioId(Long propietarioId);
+	List<Alquiler> findByPropietarioIdAndEstado(Long propietarioId , EstadoAlquiler estado);
     
 }

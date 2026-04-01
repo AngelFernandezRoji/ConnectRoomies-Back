@@ -11,9 +11,12 @@ public class AlquilerDto {
     private Long id;
     private LocalDateTime fechaInicio;
     private LocalDateTime fechaFin;
-    private EstadoAlquiler estado;    
+    private Integer duracionMeses;
+    private String mensaje;
+    private EstadoAlquiler estado;
 
     private InquilinoDto inquilino;
+    private PropietarioDto propietario;
     private ViviendaAlquilerDto vivienda;
     private HabitacionAlquilerDto habitacion;
 }
