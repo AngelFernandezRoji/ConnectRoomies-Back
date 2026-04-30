@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import connectroomies.model.dtos.LoginRequestDto;
 import connectroomies.model.dtos.LoginResponseDto;
 import connectroomies.model.entities.Usuario;
+import connectroomies.model.enums.EstadoUsuario;
 import connectroomies.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +28,10 @@ public class AuthController {
         
         if (usuario == null || !passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
             return ResponseEntity.status(401).body("Usuario o contraseña incorrectos");
+        }
+        
+        if (usuario != null && usuario.getEstado().equals(EstadoUsuario.SUSPENDIDO)) {
+        	return ResponseEntity.status(401).body("Usuario suspendido");
         }
 
         String rol = usuario.getRoles().stream()
